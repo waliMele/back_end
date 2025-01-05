@@ -31,7 +31,7 @@ URL Scam Detector is a user-friendly web application designed to analyze URLs an
 ---
 
 ## 🚀 **How to Use**  
-1. Visit the **Frontend Website**: [[[[Netlify Deployment Link]]]([url](https://radiant-selkie-120b55.netlify.app/#home))  
+1. Visit the **Frontend Website**: [Netlify Deployment Link](https://radiant-selkie-120b55.netlify.app/#home)  
 2. Enter a URL into the input field.  
 3. Click **Check**.  
 4. View the **Prediction** and **Reason** for the result.  
@@ -54,10 +54,11 @@ URL Scam Detector is a user-friendly web application designed to analyze URLs an
 - Python 3.x  
 - Flask  
 - Scikit-learn  
-- Joblib
-  
-📬 Contact
-For any questions, suggestions, or feedback, feel free to reach out:
-Name: Wali
-Email: [sumorowalelign@gmail.com]
-GitHub: walelignsumoro
+- Joblib  
+
+### Setup Backend  
+```bash
+git clone https://github.com/walelignsumoro/back_end.git
+cd back_end
+pip install -r requirements.txt
+python app.py
