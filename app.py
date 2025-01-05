@@ -7,8 +7,12 @@ import re
 app = Flask(__name__)
 CORS(app)
 
-# Load the trained model
-model = joblib.load('optimized_random_forest_model.pkl')
+# ✅ Load the trained model
+try:
+    model = joblib.load('optimized_random_forest_model.pkl')
+    print("✅ Model loaded successfully")
+except Exception as e:
+    print(f"❌ Failed to load the model: {e}")
 
 
 # ✅ Explicit Conditional Rules for Scam Detection
@@ -25,27 +29,27 @@ def is_suspicious(url):
     LOOKALIKE_PATTERNS = [r'0', r'1', r'5', r'3', r'7', r'@']
     SUSPICIOUS_SPECIAL_CHARS = ['$', '%', '&', '?', '-', '_', '!', '=', '@']
 
-    # Check TLDs
+    # ✅ Check TLDs
     if url.split('.')[-1] in SUSPICIOUS_TLDS:
         print("❌ Rule Matched: Suspicious TLD detected")
         return True, "Suspicious TLD detected"
 
-    # Check Hyphenated Keywords
+    # ✅ Check Hyphenated Keywords
     if any(keyword in url.lower() and '-' in url for keyword in HIGH_RISK_KEYWORDS):
         print("❌ Rule Matched: High-risk keyword with hyphen detected")
         return True, "High-risk keyword with hyphen detected"
 
-    # Check Typosquatting Patterns
+    # ✅ Check Typosquatting Patterns
     if any(pattern in url.lower() for pattern in TYPOSQUATTING_PATTERNS):
         print("❌ Rule Matched: Typosquatting pattern detected")
         return True, "Typosquatting pattern detected"
 
-    # Check Lookalike Characters
+    # ✅ Check Lookalike Characters
     if any(re.search(pattern, url.lower()) for pattern in LOOKALIKE_PATTERNS):
         print("❌ Rule Matched: Lookalike character pattern detected")
         return True, "Lookalike character pattern detected"
 
-    # Check Suspicious Special Characters
+    # ✅ Check Suspicious Special Characters
     if sum(c in SUSPICIOUS_SPECIAL_CHARS for c in url) > 3:
         print("❌ Rule Matched: Excessive suspicious special characters detected")
         return True, "Excessive suspicious special characters detected"
@@ -82,6 +86,15 @@ def extract_features(url):
         'special_chars': special_chars,
         'subdomain_count': subdomain_count
     }
+
+
+# ✅ Root Route
+@app.route('/')
+def home():
+    return jsonify({
+        "message": "URL Scam Detector Backend is running successfully.",
+        "usage": "Send a POST request to /predict with a JSON payload containing 'url'."
+    })
 
 
 # ✅ Prediction Route
