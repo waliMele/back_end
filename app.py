@@ -24,11 +24,13 @@ db = SQLAlchemy(app)
 
 # ✅ Stripe Configuration
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY', 'your_stripe_secret_key')
-
+publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
+print("STRIPE_SECRET_KEY:", stripe.api_key)
+print("STRIPE_PUBLISHABLE_KEY:", publishable_key)
 # ✅ Load the Trained Model
-model = None
+model_path = os.path.join(os.path.dirname(__file__), 'optimized_random_forest_model.pkl')
+
 try:
-    model_path = os.path.expanduser('~/Desktop/back_end/optimized_random_forest_model.pkl')
     model = joblib.load(model_path)
     if hasattr(model, 'predict'):
         logger.info("✅ Machine Learning model loaded successfully.")
@@ -52,8 +54,28 @@ with app.app_context():
     db.create_all()
     logger.info("✅ Database initialized.")
 
-# ✅ Explicit Conditional Rules for Scam Detection
+# Trusted Domains List
+TRUSTED_DOMAINS = [
+    'outlook.office.com', 'mail.google.com', 'yahoo.com', 'hotmail.com', 'icloud.com',
+    'queensu.ca', 'harvard.edu', 'stanford.edu', 'mit.edu', 'ox.ac.uk',
+    'paypal.com', 'stripe.com', 'bankofamerica.com', 'chase.com', 'wellsfargo.com',
+    '.gov', '.gov.uk', 'canada.ca',
+    'aws.amazon.com', 'cloudflare.com', 'azure.microsoft.com',
+    'facebook.com', 'twitter.com', 'linkedin.com', 'instagram.com',
+    'amazon.com', 'ebay.com', 'shopify.com'
+]
+
+# Update is_suspicious function
 def is_suspicious(url):
+    from urllib.parse import urlparse
+    parsed_url = urlparse(url)
+    domain = parsed_url.netloc
+    
+    # Check against trusted domains
+    if any(domain.endswith(trusted) for trusted in TRUSTED_DOMAINS):
+        return False, "Trusted domain detected"
+    
+    # Continue with existing checks
     HIGH_RISK_KEYWORDS = ['offer', 'free', 'win', 'bonus', 'gift']
     SUSPICIOUS_TLDS = ['tk', 'ru', 'biz', 'cf', 'xyz']
     SPECIAL_CHARS = ['$', '%', '&', '?', '-', '_', '!', '=', '@']
@@ -64,6 +86,7 @@ def is_suspicious(url):
         return True, "High-risk keyword detected"
     if sum(c in SPECIAL_CHARS for c in url) > 3:
         return True, "Excessive special characters detected"
+    
     return False, "No explicit scam patterns detected"
 
 # ✅ Feature Extraction
