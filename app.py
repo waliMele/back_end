@@ -10,7 +10,8 @@ import logging
 
 # ✅ Initialize Flask App
 app = Flask(__name__)
-CORS(app)
+# Allow CORS for your Netlify domain
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # ✅ Logging Configuration
 logging.basicConfig(level=logging.INFO)
@@ -62,7 +63,7 @@ TRUSTED_DOMAINS = [
     '.gov', '.gov.uk', 'canada.ca',
     'aws.amazon.com', 'cloudflare.com', 'azure.microsoft.com',
     'facebook.com', 'twitter.com', 'linkedin.com', 'instagram.com',
-    'amazon.com', 'ebay.com', 'shopify.com'
+    'amazon.com', 'ebay.com', 'shopify.com', '.ca' , '.et', '.org', '.edu'
 ]
 
 # Update is_suspicious function
