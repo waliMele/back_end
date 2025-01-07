@@ -221,17 +221,23 @@ def debug_api_keys():
     except Exception as e:
         logger.error(f"❌ Error in /debug-api-keys: {str(e)}")
         return jsonify({"error": str(e)}), 500
-    @app.route('/add-api-key', methods=['POST'])
+   # ✅ Example of a properly indented add_api_key function
+@app.route('/add-api-key', methods=['POST'])
 def add_api_key():
     try:
-        with app.app_context():
-            new_user = User(username='admin', password='securepassword', api_key='test_api_key', is_premium=True)
-            db.session.add(new_user)
+        api_key = request.json.get('api_key')
+        user = User.query.filter_by(api_key=api_key).first()
+        
+        if user:
+            user.is_premium = True
             db.session.commit()
-        return jsonify({"message": "API key added successfully."})
+            return jsonify({"message": "User upgraded to Premium!"})
+        else:
+            return jsonify({"error": "User not found!"}), 404
     except Exception as e:
         logger.error(f"❌ Error in /add-api-key: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 # ✅ Run the Server
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5002, debug=True)
