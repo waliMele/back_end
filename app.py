@@ -26,7 +26,7 @@ db = SQLAlchemy(app)
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY', 'your_stripe_secret_key')
 publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
 print("STRIPE_SECRET_KEY:", stripe.api_key)
-print("STRIPE_PUBLISHABLE_KEY:", publishable_key)
+print("STRIPE_PUBLISHABLE_KEY:", os.getenv('STRIPE_PUBLISHABLE_KEY'))
 # ✅ Load the Trained Model
 model_path = os.path.join(os.path.dirname(__file__), 'optimized_random_forest_model.pkl')
 
@@ -163,39 +163,28 @@ def root():
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     try:
-        api_key = request.headers.get('Authorization')
-        user = User.query.filter_by(api_key=api_key).first()
-        
-        if not user:
-            logger.warning("❌ Unauthorized access attempt detected.")
-            return jsonify({"error": "Unauthorized"}), 401
-
-        if user.is_premium:
-            logger.info("🔑 User already has premium access.")
-            return jsonify({"message": "User already has premium access."})
-
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[{
                 'price_data': {
                     'currency': 'usd',
                     'product_data': {
-                        'name': 'Premium Subscription',
+                        'name': 'Premium Plan',
+                        'description': 'Unlock advanced scam detection features.'
                     },
-                    'unit_amount': 1000,  # $10.00 (example amount)
+                    'unit_amount': 500
                 },
                 'quantity': 1,
             }],
             mode='payment',
-            success_url='http://127.0.0.1:5000/success',
-            cancel_url='http://127.0.0.1:5000/cancel',
+            success_url='https://radiant-selkie-120b55.netlify.app//success',
+            cancel_url='https://radiant-selkie-120b55.netlify.app//cancel',
         )
-        
-        logger.info("✅ Stripe Checkout session created successfully.")
-        return jsonify({"url": session.url})
-    except Exception as e:
-        logger.error(f"❌ Error in /create-checkout-session: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'checkout_url': session.url})
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error: {e}")
+        return jsonify({'error': str(e)}), 500
+
 # ✅ Run the Server
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5002, debug=True)
