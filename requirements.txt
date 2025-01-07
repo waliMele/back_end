@@ -4,5 +4,5 @@ joblib
 pandas
 scikit-learn
 gunicorn
-flask_sqlalchemy
 stripe
+flask_sqlalchemy

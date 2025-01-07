@@ -136,6 +136,43 @@ def root():
         "message": "Welcome to URL Scam Detector Backend!",
         "health_check": "/health"
     })
+# ✅ Create Checkout Session Endpoint
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    try:
+        api_key = request.headers.get('Authorization')
+        user = User.query.filter_by(api_key=api_key).first()
+        
+        if not user:
+            logger.warning("❌ Unauthorized access attempt detected.")
+            return jsonify({"error": "Unauthorized"}), 401
+
+        if user.is_premium:
+            logger.info("🔑 User already has premium access.")
+            return jsonify({"message": "User already has premium access."})
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': 'Premium Subscription',
+                    },
+                    'unit_amount': 1000,  # $10.00 (example amount)
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url='http://127.0.0.1:5000/success',
+            cancel_url='http://127.0.0.1:5000/cancel',
+        )
+        
+        logger.info("✅ Stripe Checkout session created successfully.")
+        return jsonify({"url": session.url})
+    except Exception as e:
+        logger.error(f"❌ Error in /create-checkout-session: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 # ✅ Run the Server
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5002, debug=True)
