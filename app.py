@@ -11,7 +11,11 @@ import logging
 # ✅ Initialize Flask App
 app = Flask(__name__)
 # Allow CORS for your Netlify domain
-CORS(app, resources={r"/*": {"origins": ["https://radiant-selkie-120b55.netlify.app/"]}})
+CORS(app, resources={
+    r"/*": {
+        "origins": ["*", "https://your-netlify-domain.netlify.app"]
+    }
+})
 # ✅ Logging Configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
