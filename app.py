@@ -13,7 +13,7 @@ app = Flask(__name__)
 # Allow CORS for your Netlify domain
 CORS(app, resources={
     r"/*": {
-        "origins": ["*", "https://your-netlify-domain.netlify.app"]
+        "origins": ["*", "https://radiant-selkie-120b55.netlify.app/"]
     }
 })
 # ✅ Logging Configuration
