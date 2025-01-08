@@ -119,7 +119,6 @@ def extract_features(url):
 def predict():
     try:
         api_key = request.headers.get('Authorization')
-        logger.info(f"Authorization Header Received: {api_key}")
         user = User.query.filter_by(api_key=api_key).first()
         
         if not user:
@@ -133,7 +132,6 @@ def predict():
         data = request.get_json()
         url = data[0]['url']
 
-        # Simulate prediction
         return jsonify({"results": [{"url": url, "prediction": "Legitimate", "reason": "Predicted by ML model"}]})
 
     except Exception as e:
